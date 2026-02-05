@@ -98,7 +98,7 @@ local_file_dates <- local_files |>
 printout("Removing duplicated local files...")
 
 # Get lists of files in each set that have newer versions already locally
-duplicated_local_files <- 1:length(local_file_dates) |>
+duplicated_local_files <- seq_along(local_file_dates) |>
   # Loop through RAW/COR/FEM (indexed by `i`)
   lapply(function(i) {
     data.frame(
@@ -135,7 +135,7 @@ if (n_duplicated_files) {
 printout("Removing outdated local files...")
 
 # Get local file paths that are out of date
-outdated_local_files <- 1:length(local_file_dates) |>
+outdated_local_files <- seq_along(local_file_dates) |>
   # Loop through RAW/COR/FEM (indexed by `i`)
   lapply(function(i) {
     # Make a dataframe matching up file data dates and creation times
@@ -192,7 +192,7 @@ if (n_outdated_files) {
 printout("Downloading missing external files...")
 
 # Find files that dont exist locally
-files_to_get <- 1:length(server_files) |>
+files_to_get <- seq_along(server_files) |>
   # Loop through RAW/COR/FEM (indexed by `i`)
   lapply(function(i) {
     # Find overlapping files between server / local
@@ -213,13 +213,13 @@ if (n_missing_files) {
   cat("\t", paste(unlist(files_to_get), collapse = "\n\t "))
   cat("\n")
   # Make local file paths for files to download
-  where_they_go <- 1:length(files_to_get) |>
+  where_they_go <- seq_along(files_to_get) |>
     lapply(function(i) {
       file.path(local_path, local_dirs[i], names(files_to_get[[i]]))
     })
 
   # Download files we don't already have and store them locally
-  1:length(files_to_get) |>
+  seq_along(files_to_get) |>
     # Loop through RAW/COR/FEM (indexed by `i`)
     lapply(function(i) {
       # Get server path
@@ -227,7 +227,7 @@ if (n_missing_files) {
       # Get local path
       lcls <- where_they_go[[i]]
       # Attempt to download files, raise warnings if failed
-      1:length(urls) |>
+      seq_along(urls) |>
         sapply(function(j) {
           tryCatch(
             download.file(urls[j], lcls[j]),
