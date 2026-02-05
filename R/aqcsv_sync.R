@@ -33,7 +33,8 @@ logs <- handyr::log_step("Starting AQCSV Sync", header = TRUE)
 
 ## --- Local details ---
 # Where are the AQCSV files stored locally?
-local_path <- "/fs/homeu2/eccc/oth/airq_west/jna001/Data/PurpleAir"
+# local_path <- "/fs/homeu2/eccc/oth/airq_west/jna001/Data/PurpleAir"
+local_path <- "."
 # What are the directory names within `local_path` that store the AQCSVs?
 local_dirs <- list(
   RAW = "RAW",
@@ -102,7 +103,7 @@ outdated_local_files |> summarise_files()
 # Remove the local files that are out of date
 if (length(unlist(outdated_local_files)) > 0) {
   outdated_local_files |> unlist() |> file.remove()
-  local_files <- local_path |> 
+  local_files <- local_path |>
     get_local_aqcsv_file_paths(local_dirs = local_dirs)
 }
 
