@@ -1,5 +1,8 @@
 # Get file creation timestamp from AQCSV file name
 get_aqcsv_creation_date <- function(file_names) {
+  if (length(file_names) == 0) {
+    return(NULL)
+  }
   data_dates <- file_names |>
     # Use file name not full path (we set the names previously)
     names() |>
