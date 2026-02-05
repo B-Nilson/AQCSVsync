@@ -1,0 +1,7 @@
+^renv$
+^renv\.lock$
+^AQCSVsync\.Rproj$
+^\.Rproj\.user$
+^[.]?air[.]toml$
+^\.vscode$
+^LICENSE\.md$
