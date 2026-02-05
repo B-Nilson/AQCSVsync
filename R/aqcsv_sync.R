@@ -20,12 +20,12 @@
 ###   2. COR: corrected (UNBC correction) purpleair data
 ###   3. FEM: Same as 1. with nearest FEM obs appended
 
-### `%>%` is the "pipe" operator from dplyr
+### `|>` is the "pipe" operator
 ### This "pipes" the output of the left side to the next operation
-### i.e. x %>% mean() sends `x` to the mean function, calculating the mean of x
-### or mydata %>% group_by(year) %>% summarise(mean) groups `mydata`
+### i.e. x |> mean() sends `x` to the mean function, calculating the mean of x
+### or mydata |> group_by(year) |> summarise(mean) groups `mydata`
 ### by the `year` column, then calculates the mean for each group
-### `%>%` allows for a "pipeline" of operations
+### `|>` allows for a "pipeline" of operations
 
 # Packages ----------------------------------------------------------------
 
@@ -51,37 +51,37 @@ printout = function(msg) cat(format(Sys.time(), "%F, %T"), msg, "\n")
 # Function to get local AQCSV file lists
 get_local_aqcsv_file_names = function(local_path, local_dirs) {
   # Get names of local files
-  local_files = local_dirs %>%
+  local_files = local_dirs |>
     # Loop through each file set directory, preppending the local path
-    lapply(function(x) file.path(local_path, x)) %>%
+    lapply(function(x) file.path(local_path, x)) |>
     # Loop through these, getting a list of files in each directory
     lapply(list.files)
-  local_files = names(local_files) %>%
+  local_files = names(local_files) |>
     # Loop through lists of files, preppending the server path and dir to each file
     lapply(function(file_set) {
-      file.path(local_path, local_dirs[[file_set]], local_files[[file_set]]) %>%
+      file.path(local_path, local_dirs[[file_set]], local_files[[file_set]]) |>
         setNames(local_files[[file_set]])
     })
 }
 
 # Function to get file creation timestamp from AQCSV file name
 get_aqcsv_creation_date = function(file_names) {
-  data_dates = file_names %>%
+  data_dates = file_names |>
     # Use file name not full path (we set the names previously)
-    names() %>%
+    names() |>
     # Extract datestamp at start of filename
-    str_split("_aq\\.txt", simplify = TRUE) %>%
-    .[, 1] %>%
-    str_remove_all("COR|FEM|RAW") %>%
+    str_split("_aq\\.txt", simplify = TRUE) |>
+    _[, 1] |>
+    str_remove_all("COR|FEM|RAW") |>
     # Convert to datetime object
     ymd_hm()
-  creation_dates = file_names %>%
+  creation_dates = file_names |>
     # Extract datestamp at end of filename
-    str_split("AQCSV:", simplify = TRUE) %>%
-    .[, 2] %>%
+    str_split("AQCSV:", simplify = TRUE) |>
+    _[, 2] |>
     # Convert to datetime object
     ymd_hms()
-  return(creation_dates %>% setNames(data_dates))
+  return(creation_dates |> setNames(data_dates))
 }
 
 # Print startup message
@@ -120,24 +120,24 @@ local_dirs = list(
 printout("Getting external file details...")
 
 # Read in lists of AQCSV files available
-server_files = server_file_lists %>%
+server_files = server_file_lists |>
   # Loop through each file list, preppending the server path
-  lapply(function(file_list) file.path(server_path, file_list)) %>%
+  lapply(function(file_list) file.path(server_path, file_list)) |>
   # Loop through these, reading each in
   lapply(function(url) read.table(url)[, 1])
-server_files = names(server_files) %>%
+server_files = names(server_files) |>
   # Loop through lists of files, preppending the server path and dir to each file
   lapply(function(file_set) {
     file.path(
       server_path,
       server_dirs[[file_set]],
       server_files[[file_set]]
-    ) %>%
+    ) |>
       setNames(server_files[[file_set]])
   })
 
 # Get file creation dates in case of updates
-server_file_dates = server_files %>%
+server_file_dates = server_files |>
   lapply(get_aqcsv_creation_date)
 
 # Get Local (SciNet) File Details -----------------------------------------
@@ -148,7 +148,7 @@ printout("Getting local file details...")
 local_files = get_local_aqcsv_file_names(local_path, local_dirs)
 
 # Get file creation dates in case of updates
-local_file_dates = local_files %>%
+local_file_dates = local_files |>
   lapply(get_aqcsv_creation_date)
 
 # Remove Duplicated Local Files -------------------------------------------
@@ -156,33 +156,33 @@ local_file_dates = local_files %>%
 printout("Removing duplicated local files...")
 
 # Get lists of files in each set that have newer versions already locally
-duplicated_local_files = 1:length(local_file_dates) %>%
+duplicated_local_files = 1:length(local_file_dates) |>
   # Loop through RAW/COR/FEM (indexed by `i`)
   lapply(function(i) {
     data.frame(
       data_dates = names(local_file_dates[[i]]),
       creation_dates = local_file_dates[[i]],
       paths = local_files[[i]]
-    ) %>%
-      arrange(desc(creation_dates)) %>%
-      filter(duplicated(data_dates)) %>%
+    ) |>
+      arrange(desc(creation_dates)) |>
+      filter(duplicated(data_dates)) |>
       pull(paths)
   })
 
 # Get count of duplicated files
-n_duplicated_files = duplicated_local_files %>%
-  unlist() %>%
+n_duplicated_files = duplicated_local_files |>
+  unlist() |>
   length()
 
 # Output messaging with information on outdated files
 cat("   ", n_duplicated_files, "files have newer versions locally\n")
 if (n_duplicated_files) {
   # if any duplicated files
-  cat("\t", paste(duplicated_local_files %>% unlist(), collapse = "\n\t "))
+  cat("\t", paste(duplicated_local_files |> unlist(), collapse = "\n\t "))
   cat("\n")
 
   # Remove the local files that are duplicated
-  file.remove(duplicated_local_files %>% unlist())
+  file.remove(duplicated_local_files |> unlist())
 
   # Regenerate local file list
   local_files = get_local_aqcsv_file_names(local_path, local_dirs)
@@ -193,14 +193,14 @@ if (n_duplicated_files) {
 printout("Removing outdated local files...")
 
 # Get local file paths that are out of date
-outdated_local_files = 1:length(local_file_dates) %>%
+outdated_local_files = 1:length(local_file_dates) |>
   # Loop through RAW/COR/FEM (indexed by `i`)
   lapply(function(i) {
     # Make a dataframe matching up file data dates and creation times
     dates = data.frame(
       data = names(server_file_dates[[i]]),
       server_creation = server_file_dates[[i]]
-    ) %>%
+    ) |>
       full_join(
         data.frame(
           data = names(local_file_dates[[i]]),
@@ -208,7 +208,7 @@ outdated_local_files = 1:length(local_file_dates) %>%
           path = local_files[[i]]
         ),
         by = "data"
-      ) %>%
+      ) |>
       # Get differences in creation dates
       mutate(
         creation_diff = difftime(
@@ -216,19 +216,19 @@ outdated_local_files = 1:length(local_file_dates) %>%
           server_creation,
           units = "hours"
         )
-      ) %>%
+      ) |>
       # Drop entries with no differences
-      filter(creation_diff != 0) %>%
+      filter(creation_diff != 0) |>
       # Drop older entries when duplicates on server exist
-      arrange(desc(server_creation)) %>%
-      filter(!duplicated(data)) %>%
+      arrange(desc(server_creation)) |>
+      filter(!duplicated(data)) |>
       # Return local paths of outdated files
       pull(path)
-  }) %>%
+  }) |>
   unlist()
 
 # Get count of outdated files
-n_outdated_files = outdated_local_files %>%
+n_outdated_files = outdated_local_files |>
   length()
 
 # Output messaging with information on outdated files
@@ -250,7 +250,7 @@ if (n_outdated_files) {
 printout("Downloading missing external files...")
 
 # Find files that dont exist locally
-files_to_get = 1:length(server_files) %>%
+files_to_get = 1:length(server_files) |>
   # Loop through RAW/COR/FEM (indexed by `i`)
   lapply(function(i) {
     # Find overlapping files between server / local
@@ -260,8 +260,8 @@ files_to_get = 1:length(server_files) %>%
   })
 
 # Get names of missing files
-n_missing_files = files_to_get %>%
-  unlist() %>%
+n_missing_files = files_to_get |>
+  unlist() |>
   length()
 
 # Output messaging with information on missing files
@@ -271,13 +271,13 @@ if (n_missing_files) {
   cat("\t", paste(unlist(files_to_get), collapse = "\n\t "))
   cat("\n")
   # Make local file paths for files to download
-  where_they_go = 1:length(files_to_get) %>%
+  where_they_go = 1:length(files_to_get) |>
     lapply(function(i) {
       file.path(local_path, local_dirs[i], names(files_to_get[[i]]))
     })
 
   # Download files we don't already have and store them locally
-  1:length(files_to_get) %>%
+  1:length(files_to_get) |>
     # Loop through RAW/COR/FEM (indexed by `i`)
     lapply(function(i) {
       # Get server path
@@ -285,7 +285,7 @@ if (n_missing_files) {
       # Get local path
       lcls = where_they_go[[i]]
       # Attempt to download files, raise warnings if failed
-      1:length(urls) %>%
+      1:length(urls) |>
         sapply(function(j) {
           tryCatch(
             download.file(urls[j], lcls[j]),
