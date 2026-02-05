@@ -31,22 +31,6 @@
 
 logs <- handyr::log_step("Starting AQCSV Sync", header = TRUE)
 
-## --- Server details ---
-# Where are the AQCSV files stored on UNBC?
-server_path <- "https://cyclone.unbc.ca/aqmap/data/AQCSV"
-# What are the names of the files which list the AQCSV files on the server?
-server_file_lists <- c(
-  RAW = "file_list_raw.txt",
-  COR = "file_list_cor.txt",
-  FEM = "file_list_fem.txt"
-)
-# What are the directory names within `local_path` that store the AQCSVs?
-server_dirs <- c(
-  RAW = "raw",
-  COR = "cor",
-  FEM = "fem"
-)
-
 ## --- Local details ---
 # Where are the AQCSV files stored locally?
 local_path <- "/fs/homeu2/eccc/oth/airq_west/jna001/Data/PurpleAir"
@@ -62,21 +46,7 @@ local_dirs <- list(
 logs$external_files <- handyr::log_step("Getting external file details")
 
 # Read in lists of AQCSV files available
-server_files <- server_file_lists |>
-  # Loop through each file list, preppending the server path
-  lapply(function(file_list) file.path(server_path, file_list)) |>
-  # Loop through these, reading each in
-  lapply(function(url) read.table(url)[, 1])
-server_files <- names(server_files) |>
-  # Loop through lists of files, preppending the server path and dir to each file
-  lapply(function(file_set) {
-    file.path(
-      server_path,
-      server_dirs[[file_set]],
-      server_files[[file_set]]
-    ) |>
-      setNames(server_files[[file_set]])
-  })
+server_files <- get_external_file_paths()
 
 # Get file creation dates in case of updates
 server_file_dates <- server_files |>
