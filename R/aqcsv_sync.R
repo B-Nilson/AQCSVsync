@@ -57,7 +57,10 @@ server_file_dates <- server_files |>
 logs$local_files <- handyr::log_step("Getting local file details")
 
 # Get names of local files
-local_files <- get_local_aqcsv_file_names(local_path, local_dirs)
+local_files <- get_local_aqcsv_file_paths(
+  local_path = local_path,
+  local_dirs = local_dirs
+)
 
 # Get file creation dates in case of updates
 local_file_dates <- local_files |>
