@@ -230,7 +230,7 @@ if (n_missing_files) {
       seq_along(urls) |>
         sapply(function(j) {
           tryCatch(
-            download.file(urls[j], lcls[j]),
+            download.file(urls[j], lcls[j], mode = "wb"),
             error = function(e, ...) {
               warning(e)
               NULL
