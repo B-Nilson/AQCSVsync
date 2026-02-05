@@ -1,18 +1,20 @@
-get_local_duplicates <- function(local_file_dates) {
+get_local_duplicates <- function(local_files, local_file_dates) {
   local_file_dates |>
     handyr::for_each(
       .enumerate = TRUE,
-        if (is.null(file_date)) {
+      .show_progress = FALSE,
+      \(file_dates, i) {
+        if (is.null(file_dates)) {
           return(NULL)
         }
         data.frame(
           data_dates = names(local_file_dates[[i]]),
-          creation_dates = file_date,
+          creation_dates = file_dates,
           paths = local_files[[i]]
         ) |>
-          arrange(desc(creation_dates)) |>
-          filter(duplicated(data_dates)) |>
-          pull(paths)
+          dplyr::arrange(dplyr::desc(creation_dates)) |>
+          dplyr::filter(duplicated(data_dates)) |>
+          dplyr::pull(paths)
       }
     )
 }

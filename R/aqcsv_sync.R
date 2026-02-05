@@ -69,8 +69,8 @@ local_file_dates <- local_files |>
 logs$duplicated_files <- handyr::log_step("Removing duplicated local files")
 
 # Get lists of files in each set that have newer versions already locally
-duplicated_local_files <- local_file_dates |>
-  get_local_duplicates()
+duplicated_local_files <- local_files |>
+  get_local_duplicates(local_file_dates = local_file_dates)
 
 # Output messaging with information on duplicated files
 duplicated_local_files |> summarise_files()
