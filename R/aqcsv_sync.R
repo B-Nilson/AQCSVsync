@@ -71,18 +71,8 @@ local_file_dates <- local_files |>
 logs$duplicated_files <- handyr::log_step("Removing duplicated local files")
 
 # Get lists of files in each set that have newer versions already locally
-duplicated_local_files <- seq_along(local_file_dates) |>
-  # Loop through RAW/COR/FEM (indexed by `i`)
-  lapply(function(i) {
-    data.frame(
-      data_dates = names(local_file_dates[[i]]),
-      creation_dates = local_file_dates[[i]],
-      paths = local_files[[i]]
-    ) |>
-      arrange(desc(creation_dates)) |>
-      filter(duplicated(data_dates)) |>
-      pull(paths)
-  })
+duplicated_local_files <- local_file_dates |>
+  get_local_duplicates()
 
 # Get count of duplicated files
 n_duplicated_files <- duplicated_local_files |>
