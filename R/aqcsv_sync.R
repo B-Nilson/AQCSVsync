@@ -57,10 +57,8 @@ server_file_dates <- server_files |>
 logs$local_files <- handyr::log_step("Getting local file details")
 
 # Get names of local files
-local_files <- get_local_aqcsv_file_paths(
-  local_path = local_path,
-  local_dirs = local_dirs
-)
+local_files <- local_path |>
+  get_local_aqcsv_file_paths(local_dirs = local_dirs)
 
 # Get file creation dates in case of updates
 local_file_dates <- local_files |>
@@ -74,31 +72,14 @@ logs$duplicated_files <- handyr::log_step("Removing duplicated local files")
 duplicated_local_files <- local_file_dates |>
   get_local_duplicates()
 
-# Get count of duplicated files
-n_duplicated_files <- duplicated_local_files |>
-  unlist() |>
-  length()
+# Output messaging with information on duplicated files
+duplicated_local_files |> summarise_files()
 
-# Output messaging with information on outdated files
-handyr::log_step(
-  "\t",
-  n_duplicated_files,
-  "files have newer versions locally:",
-  time = FALSE
-)
-if (n_duplicated_files) {
-  # if any duplicated files
-  handyr::log_step(
-    "\t\t-",
-    duplicated_local_files |> unlist() |> paste(collapse = "\n\t\t- "),
-    time = FALSE
-  )
-
-  # Remove the local files that are duplicated
-  file.remove(duplicated_local_files |> unlist())
-
-  # Regenerate local file list
-  local_files <- get_local_aqcsv_file_names(local_path, local_dirs)
+# Remove the local files that are duplicated
+if (length(unlist(duplicated_local_files)) > 0) {
+  duplicated_local_files |> unlist() |> file.remove()
+  local_files <- local_path |>
+    get_local_aqcsv_file_paths(local_dirs = local_dirs)
 }
 
 # Remove Outdated Local Files ---------------------------------------------
@@ -140,25 +121,14 @@ outdated_local_files <- seq_along(local_file_dates) |>
   }) |>
   unlist()
 
-# Get count of outdated files
-n_outdated_files <- outdated_local_files |>
-  length()
-
 # Output messaging with information on outdated files
-handyr::log_step("\t", n_outdated_files, "files are out of date", time = FALSE)
-if (n_outdated_files) {
-  # if any outdated files
-  handyr::log_step(
-    "\t\t-",
-    outdated_local_files |> paste(collapse = "\n\t\t- "),
-    time = FALSE
-  )
+outdated_local_files |> summarise_files()
 
-  # Remove the local files that are out of date
-  file.remove(outdated_local_files)
-
-  # Regenerate local file list
-  local_files <- get_local_aqcsv_file_names(local_path, local_dirs)
+# Remove the local files that are out of date
+if (length(unlist(outdated_local_files)) > 0) {
+  outdated_local_files |> unlist() |> file.remove()
+  local_files <- local_path |> 
+    get_local_aqcsv_file_paths(local_dirs = local_dirs)
 }
 
 # Download External Files Not Found Locally -------------------------------
@@ -175,20 +145,11 @@ files_to_get <- seq_along(server_files) |>
     server_files[[i]][!overlap]
   })
 
-# Get names of missing files
-n_missing_files <- files_to_get |>
-  unlist() |>
-  length()
+# Output messaging with information on outdated files
+files_to_get |> summarise_files()
 
-# Output messaging with information on missing files
-handyr::log_step("\t", n_missing_files, "files to download", time = FALSE)
-if (n_missing_files) {
-  # if files to download
-  handyr::log_step(
-    "\t\t-",
-    files_to_get |> unlist() |> paste(collapse = "\n\t\t- "),
-    time = FALSE
-  )
+# Download the files that are missing
+if (length(unlist(files_to_get)) > 0) {
   # Make local file paths for files to download
   where_they_go <- seq_along(files_to_get) |>
     lapply(function(i) {
