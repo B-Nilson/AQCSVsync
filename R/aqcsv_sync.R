@@ -33,15 +33,15 @@ printout("Starting AQCSV Sync")
 
 ## --- Server details ---
 # Where are the AQCSV files stored on UNBC?
-server_path = "https://cyclone.unbc.ca/aqmap/data/AQCSV"
+server_path <- "https://cyclone.unbc.ca/aqmap/data/AQCSV"
 # What are the names of the files which list the AQCSV files on the server?
-server_file_lists = c(
+server_file_lists <- c(
   RAW = "file_list_raw.txt",
   COR = "file_list_cor.txt",
   FEM = "file_list_fem.txt"
 )
 # What are the directory names within `local_path` that store the AQCSVs?
-server_dirs = c(
+server_dirs <- c(
   RAW = "raw",
   COR = "cor",
   FEM = "fem"
@@ -49,9 +49,9 @@ server_dirs = c(
 
 ## --- Local details ---
 # Where are the AQCSV files stored locally?
-local_path = "/fs/homeu2/eccc/oth/airq_west/jna001/Data/PurpleAir"
+local_path <- "/fs/homeu2/eccc/oth/airq_west/jna001/Data/PurpleAir"
 # What are the directory names within `local_path` that store the AQCSVs?
-local_dirs = list(
+local_dirs <- list(
   RAW = "RAW",
   COR = "COR",
   FEM = "FEM"
@@ -62,12 +62,12 @@ local_dirs = list(
 printout("Getting external file details...")
 
 # Read in lists of AQCSV files available
-server_files = server_file_lists |>
+server_files <- server_file_lists |>
   # Loop through each file list, preppending the server path
   lapply(function(file_list) file.path(server_path, file_list)) |>
   # Loop through these, reading each in
   lapply(function(url) read.table(url)[, 1])
-server_files = names(server_files) |>
+server_files <- names(server_files) |>
   # Loop through lists of files, preppending the server path and dir to each file
   lapply(function(file_set) {
     file.path(
@@ -79,7 +79,7 @@ server_files = names(server_files) |>
   })
 
 # Get file creation dates in case of updates
-server_file_dates = server_files |>
+server_file_dates <- server_files |>
   lapply(get_aqcsv_creation_date)
 
 # Get Local (SciNet) File Details -----------------------------------------
@@ -87,10 +87,10 @@ server_file_dates = server_files |>
 printout("Getting local file details...")
 
 # Get names of local files
-local_files = get_local_aqcsv_file_names(local_path, local_dirs)
+local_files <- get_local_aqcsv_file_names(local_path, local_dirs)
 
 # Get file creation dates in case of updates
-local_file_dates = local_files |>
+local_file_dates <- local_files |>
   lapply(get_aqcsv_creation_date)
 
 # Remove Duplicated Local Files -------------------------------------------
@@ -98,7 +98,7 @@ local_file_dates = local_files |>
 printout("Removing duplicated local files...")
 
 # Get lists of files in each set that have newer versions already locally
-duplicated_local_files = 1:length(local_file_dates) |>
+duplicated_local_files <- 1:length(local_file_dates) |>
   # Loop through RAW/COR/FEM (indexed by `i`)
   lapply(function(i) {
     data.frame(
@@ -112,7 +112,7 @@ duplicated_local_files = 1:length(local_file_dates) |>
   })
 
 # Get count of duplicated files
-n_duplicated_files = duplicated_local_files |>
+n_duplicated_files <- duplicated_local_files |>
   unlist() |>
   length()
 
@@ -127,7 +127,7 @@ if (n_duplicated_files) {
   file.remove(duplicated_local_files |> unlist())
 
   # Regenerate local file list
-  local_files = get_local_aqcsv_file_names(local_path, local_dirs)
+  local_files <- get_local_aqcsv_file_names(local_path, local_dirs)
 }
 
 # Remove Outdated Local Files ---------------------------------------------
@@ -135,11 +135,11 @@ if (n_duplicated_files) {
 printout("Removing outdated local files...")
 
 # Get local file paths that are out of date
-outdated_local_files = 1:length(local_file_dates) |>
+outdated_local_files <- 1:length(local_file_dates) |>
   # Loop through RAW/COR/FEM (indexed by `i`)
   lapply(function(i) {
     # Make a dataframe matching up file data dates and creation times
-    dates = data.frame(
+    dates <- data.frame(
       data = names(server_file_dates[[i]]),
       server_creation = server_file_dates[[i]]
     ) |>
@@ -170,7 +170,7 @@ outdated_local_files = 1:length(local_file_dates) |>
   unlist()
 
 # Get count of outdated files
-n_outdated_files = outdated_local_files |>
+n_outdated_files <- outdated_local_files |>
   length()
 
 # Output messaging with information on outdated files
@@ -184,7 +184,7 @@ if (n_outdated_files) {
   file.remove(outdated_local_files)
 
   # Regenerate local file list
-  local_files = get_local_aqcsv_file_names(local_path, local_dirs)
+  local_files <- get_local_aqcsv_file_names(local_path, local_dirs)
 }
 
 # Download External Files Not Found Locally -------------------------------
@@ -192,17 +192,17 @@ if (n_outdated_files) {
 printout("Downloading missing external files...")
 
 # Find files that dont exist locally
-files_to_get = 1:length(server_files) |>
+files_to_get <- 1:length(server_files) |>
   # Loop through RAW/COR/FEM (indexed by `i`)
   lapply(function(i) {
     # Find overlapping files between server / local
-    overlap = names(server_files[[i]]) %in% names(local_files[[i]])
+    overlap <- names(server_files[[i]]) %in% names(local_files[[i]])
     # Drop urls which overlap
     server_files[[i]][!overlap]
   })
 
 # Get names of missing files
-n_missing_files = files_to_get |>
+n_missing_files <- files_to_get |>
   unlist() |>
   length()
 
@@ -213,7 +213,7 @@ if (n_missing_files) {
   cat("\t", paste(unlist(files_to_get), collapse = "\n\t "))
   cat("\n")
   # Make local file paths for files to download
-  where_they_go = 1:length(files_to_get) |>
+  where_they_go <- 1:length(files_to_get) |>
     lapply(function(i) {
       file.path(local_path, local_dirs[i], names(files_to_get[[i]]))
     })
@@ -223,9 +223,9 @@ if (n_missing_files) {
     # Loop through RAW/COR/FEM (indexed by `i`)
     lapply(function(i) {
       # Get server path
-      urls = files_to_get[[i]]
+      urls <- files_to_get[[i]]
       # Get local path
-      lcls = where_they_go[[i]]
+      lcls <- where_they_go[[i]]
       # Attempt to download files, raise warnings if failed
       1:length(urls) |>
         sapply(function(j) {
