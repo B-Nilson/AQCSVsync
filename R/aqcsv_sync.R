@@ -123,35 +123,15 @@ files_to_get <- seq_along(server_files) |>
 # Output messaging with information on outdated files
 files_to_get |> summarise_files()
 
-# Download the files that are missing
-if (length(unlist(files_to_get)) > 0) {
-  # Make local file paths for files to download
-  where_they_go <- seq_along(files_to_get) |>
-    lapply(function(i) {
-      file.path(local_path, local_dirs[i], names(files_to_get[[i]]))
-    })
-
-  # Download files we don't already have and store them locally
-  seq_along(files_to_get) |>
-    # Loop through RAW/COR/FEM (indexed by `i`)
-    lapply(function(i) {
-      # Get server path
-      urls <- files_to_get[[i]]
-      # Get local path
-      lcls <- where_they_go[[i]]
-      # Attempt to download files, raise warnings if failed
-      seq_along(urls) |>
-        sapply(function(j) {
-          tryCatch(
-            download.file(urls[j], lcls[j], mode = "wb"),
-            error = function(e, ...) {
-              warning(e)
-              NULL
-            }
-          )
-        })
-    })
-}
+# Download missing files
+seq_along(files_to_get) |>
+  lapply(function(i) {
+    files_to_get[[i]] |>
+      download_missing_files(
+        local_path = local_path,
+        local_dir = local_dirs[[i]]
+      )
+  })
 
 logs$complete <- handyr::log_step("AQCSV Sync Complete.")
 
