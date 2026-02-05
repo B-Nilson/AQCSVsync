@@ -29,7 +29,7 @@
 
 # Inputs ------------------------------------------------------------------
 
-printout("Starting AQCSV Sync")
+logs <- handyr::log_step("Starting AQCSV Sync", header = TRUE)
 
 ## --- Server details ---
 # Where are the AQCSV files stored on UNBC?
@@ -59,7 +59,7 @@ local_dirs <- list(
 
 # Get External (UNBC) File Details ----------------------------------------
 
-printout("Getting external file details...")
+logs$external_files <- handyr::log_step("Getting external file details")
 
 # Read in lists of AQCSV files available
 server_files <- server_file_lists |>
@@ -84,7 +84,7 @@ server_file_dates <- server_files |>
 
 # Get Local (SciNet) File Details -----------------------------------------
 
-printout("Getting local file details...")
+logs$local_files <- handyr::log_step("Getting local file details")
 
 # Get names of local files
 local_files <- get_local_aqcsv_file_names(local_path, local_dirs)
@@ -95,7 +95,7 @@ local_file_dates <- local_files |>
 
 # Remove Duplicated Local Files -------------------------------------------
 
-printout("Removing duplicated local files...")
+logs$duplicated_files <- handyr::log_step("Removing duplicated local files")
 
 # Get lists of files in each set that have newer versions already locally
 duplicated_local_files <- seq_along(local_file_dates) |>
@@ -117,11 +117,19 @@ n_duplicated_files <- duplicated_local_files |>
   length()
 
 # Output messaging with information on outdated files
-cat("   ", n_duplicated_files, "files have newer versions locally\n")
+handyr::log_step(
+  "\t",
+  n_duplicated_files,
+  "files have newer versions locally:",
+  time = FALSE
+)
 if (n_duplicated_files) {
   # if any duplicated files
-  cat("\t", paste(duplicated_local_files |> unlist(), collapse = "\n\t "))
-  cat("\n")
+  handyr::log_step(
+    "\t\t-",
+    duplicated_local_files |> unlist() |> paste(collapse = "\n\t\t- "),
+    time = FALSE
+  )
 
   # Remove the local files that are duplicated
   file.remove(duplicated_local_files |> unlist())
@@ -132,7 +140,7 @@ if (n_duplicated_files) {
 
 # Remove Outdated Local Files ---------------------------------------------
 
-printout("Removing outdated local files...")
+logs$outdated_files <- handyr::log_step("Removing outdated local files")
 
 # Get local file paths that are out of date
 outdated_local_files <- seq_along(local_file_dates) |>
@@ -174,11 +182,14 @@ n_outdated_files <- outdated_local_files |>
   length()
 
 # Output messaging with information on outdated files
-cat("   ", n_outdated_files, "files are out of date\n")
+handyr::log_step("\t", n_outdated_files, "files are out of date", time = FALSE)
 if (n_outdated_files) {
   # if any outdated files
-  cat("\t", paste(outdated_local_files, collapse = "\n\t "))
-  cat("\n")
+  handyr::log_step(
+    "\t\t-",
+    outdated_local_files |> paste(collapse = "\n\t\t- "),
+    time = FALSE
+  )
 
   # Remove the local files that are out of date
   file.remove(outdated_local_files)
@@ -189,7 +200,7 @@ if (n_outdated_files) {
 
 # Download External Files Not Found Locally -------------------------------
 
-printout("Downloading missing external files...")
+logs$missing_files <- handyr::log_step("Downloading missing external files")
 
 # Find files that dont exist locally
 files_to_get <- seq_along(server_files) |>
@@ -207,11 +218,14 @@ n_missing_files <- files_to_get |>
   length()
 
 # Output messaging with information on missing files
-cat("   ", n_missing_files, "files to download\n")
+handyr::log_step("\t", n_missing_files, "files to download", time = FALSE)
 if (n_missing_files) {
   # if files to download
-  cat("\t", paste(unlist(files_to_get), collapse = "\n\t "))
-  cat("\n")
+  handyr::log_step(
+    "\t\t-",
+    files_to_get |> unlist() |> paste(collapse = "\n\t\t- "),
+    time = FALSE
+  )
   # Make local file paths for files to download
   where_they_go <- seq_along(files_to_get) |>
     lapply(function(i) {
@@ -240,4 +254,6 @@ if (n_missing_files) {
     })
 }
 
-printout("AQCSV Sync Complete.")
+logs$complete <- handyr::log_step("AQCSV Sync Complete.")
+
+logs |> handyr::summarise_logs()
