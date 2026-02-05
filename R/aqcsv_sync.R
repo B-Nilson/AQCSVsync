@@ -27,51 +27,9 @@
 ### by the `year` column, then calculates the mean for each group
 ### `|>` allows for a "pipeline" of operations
 
-# Packages ----------------------------------------------------------------
-
-# Function to print out messages as script progresses
-printout = function(msg) cat(format(Sys.time(), "%F, %T"), msg, "\n")
-
-# Function to get local AQCSV file lists
-get_local_aqcsv_file_names = function(local_path, local_dirs) {
-  # Get names of local files
-  local_files = local_dirs |>
-    # Loop through each file set directory, preppending the local path
-    lapply(function(x) file.path(local_path, x)) |>
-    # Loop through these, getting a list of files in each directory
-    lapply(list.files)
-  local_files = names(local_files) |>
-    # Loop through lists of files, preppending the server path and dir to each file
-    lapply(function(file_set) {
-      file.path(local_path, local_dirs[[file_set]], local_files[[file_set]]) |>
-        setNames(local_files[[file_set]])
-    })
-}
-
-# Function to get file creation timestamp from AQCSV file name
-get_aqcsv_creation_date = function(file_names) {
-  data_dates = file_names |>
-    # Use file name not full path (we set the names previously)
-    names() |>
-    # Extract datestamp at start of filename
-    stringr::str_split("_aq\\.txt", simplify = TRUE) |>
-    _[, 1] |>
-    stringr::str_remove_all("COR|FEM|RAW") |>
-    # Convert to datetime object
-    lubridate::ymd_hm()
-  creation_dates = file_names |>
-    # Extract datestamp at end of filename
-    stringr::str_split("AQCSV:", simplify = TRUE) |>
-    _[, 2] |>
-    # Convert to datetime object
-    lubridate::ymd_hms()
-  return(creation_dates |> setNames(data_dates))
-}
-
-# Print startup message
-printout("Starting AQCSV Sync")
-
 # Inputs ------------------------------------------------------------------
+
+printout("Starting AQCSV Sync")
 
 ## --- Server details ---
 # Where are the AQCSV files stored on UNBC?
