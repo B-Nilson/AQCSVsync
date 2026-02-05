@@ -41,9 +41,9 @@ if (!"lubridate" %in% installed.packages()) {
 }
 
 # Load packages
-require(dplyr, quietly = T) # for data manipulations
-require(stringr, quietly = T) # for text manipulation
-require(lubridate, quietly = T) # for date manipulation
+require(dplyr, quietly = TRUE) # for data manipulations
+require(stringr, quietly = TRUE) # for text manipulation
+require(lubridate, quietly = TRUE) # for date manipulation
 
 # Function to print out messages as script progresses
 printout = function(msg) cat(format(Sys.time(), "%F, %T"), msg, "\n")
@@ -70,14 +70,14 @@ get_aqcsv_creation_date = function(file_names) {
     # Use file name not full path (we set the names previously)
     names() %>%
     # Extract datestamp at start of filename
-    str_split("_aq\\.txt", simplify = T) %>%
+    str_split("_aq\\.txt", simplify = TRUE) %>%
     .[, 1] %>%
     str_remove_all("COR|FEM|RAW") %>%
     # Convert to datetime object
     ymd_hm()
   creation_dates = file_names %>%
     # Extract datestamp at end of filename
-    str_split("AQCSV:", simplify = T) %>%
+    str_split("AQCSV:", simplify = TRUE) %>%
     .[, 2] %>%
     # Convert to datetime object
     ymd_hms()
