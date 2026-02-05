@@ -87,39 +87,14 @@ if (length(unlist(duplicated_local_files)) > 0) {
 logs$outdated_files <- handyr::log_step("Removing outdated local files")
 
 # Get local file paths that are out of date
-outdated_local_files <- seq_along(local_file_dates) |>
-  # Loop through RAW/COR/FEM (indexed by `i`)
-  lapply(function(i) {
-    # Make a dataframe matching up file data dates and creation times
-    dates <- data.frame(
-      data = names(server_file_dates[[i]]),
-      server_creation = server_file_dates[[i]]
-    ) |>
-      full_join(
-        data.frame(
-          data = names(local_file_dates[[i]]),
-          local_creation = local_file_dates[[i]],
-          path = local_files[[i]]
-        ),
-        by = "data"
-      ) |>
-      # Get differences in creation dates
-      mutate(
-        creation_diff = difftime(
-          local_creation,
-          server_creation,
-          units = "hours"
-        )
-      ) |>
-      # Drop entries with no differences
-      filter(creation_diff != 0) |>
-      # Drop older entries when duplicates on server exist
-      arrange(desc(server_creation)) |>
-      filter(!duplicated(data)) |>
-      # Return local paths of outdated files
-      pull(path)
-  }) |>
-  unlist()
+outdated_local_files <- seq_along(local_files) |>
+  lapply(\(i) {
+    local_files[[i]] |>
+      get_outdated_files(
+        server_file_dates = server_file_dates[[i]],
+        local_file_dates = local_file_dates[[i]]
+      )
+  })
 
 # Output messaging with information on outdated files
 outdated_local_files |> summarise_files()
