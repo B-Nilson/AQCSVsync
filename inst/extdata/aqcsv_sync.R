@@ -113,11 +113,8 @@ logs$missing_files <- handyr::log_step("Downloading missing external files")
 
 # Find files that dont exist locally
 files_to_get <- seq_along(server_files) |>
-  # Loop through RAW/COR/FEM (indexed by `i`)
   lapply(function(i) {
-    # Find overlapping files between server / local
     overlap <- names(server_files[[i]]) %in% names(local_files[[i]])
-    # Drop urls which overlap
     server_files[[i]][!overlap]
   })
 
