@@ -16,6 +16,7 @@ Imports:
     dplyr,
     handyr (>= 0.0.0.9000),
     lubridate,
+    rlang,
     stringr
 Remotes: 
     B-Nilson/handyr

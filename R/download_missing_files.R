@@ -19,7 +19,7 @@ download_missing_files <- function(
     sapply(\(i) {
       warn_prefix <- paste("Failed to download file", files_to_get[i])
       files_to_get[i] |>
-        download.file(destfile = where_they_go[i], mode = "wb") |>
+        utils::download.file(destfile = where_they_go[i], mode = "wb") |>
         handyr::on_error(.return = NULL, .warn = warn_prefix)
     })
 
