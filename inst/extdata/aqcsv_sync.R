@@ -101,9 +101,9 @@ logs$missing_files <- handyr::log_step("Downloading missing external files")
 
 # Find files that dont exist locally
 files_to_get <- seq_along(server_files) |>
-  lapply(function(i) {
-    overlap <- names(server_files[[i]]) %in% names(local_files[[i]])
-    server_files[[i]][!overlap]
+  lapply(\(i) {
+    is_downloaded <- basename(server_files[[i]]) %in% basename(local_files[[i]])
+    server_files[[i]][!is_downloaded]
   })
 
 # Output messaging with information on outdated files
