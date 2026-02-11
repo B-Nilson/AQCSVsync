@@ -10,7 +10,7 @@ Handles removing duplicates and replacing old files with updated versions.
 
 ## Installation
 
-You can install the development version of AQCSVsync like so:
+You can install the development version of AQCSVsync by running the following in an R session:
 
 ``` r
 
@@ -20,6 +20,8 @@ pak::pak("B-Nilson/AQCSVsync")
 ```
 
 ## Sync AQCSV Files
+
+In an R session:
 
 ``` r
 
@@ -36,5 +38,13 @@ sub_dirs <- list( # relative to data_dir
 # Download missing files, remove local duplicates, replace outdated files
 # (initial run may take a bit to download the full dataset)
 data_dir |> sync_aqcsvs(local_dirs = sub_dirs)
+
+```
+
+via the command line (AQCSVsync must be installed):
+
+``` sh
+
+Rscript -e "AQCSVsync::sync_aqcsvs('./data/', local_dirs = list(RAW = 'RAW', COR = 'COR', FEM = 'FEM'))"
 
 ```
