@@ -57,13 +57,8 @@ server_file_dates <- server_files |>
 
 logs$local_files <- handyr::log_step("Getting local file details")
 
-# Get names of local files
-local_files <- local_path |>
-  get_local_aqcsv_file_paths(local_dirs = local_dirs)
-
-# Get file creation dates in case of updates
-local_file_dates <- local_files |>
-  lapply(get_aqcsv_dates)
+local_files <- local_path |> get_local_paths(local_dirs = local_dirs)
+local_file_dates <- local_files |> lapply(get_aqcsv_dates)
 
 # Remove Duplicated Local Files -------------------------------------------
 
@@ -79,8 +74,8 @@ duplicated_local_files |> summarise_files()
 # Remove the local files that are duplicated
 if (length(unlist(duplicated_local_files)) > 0) {
   duplicated_local_files |> unlist() |> file.remove()
-  local_files <- local_path |>
-    get_local_aqcsv_file_paths(local_dirs = local_dirs)
+  local_files <- local_path |> get_local_paths(local_dirs = local_dirs)
+  local_file_dates <- local_files |> lapply(get_aqcsv_dates)
 }
 
 # Remove Outdated Local Files ---------------------------------------------
@@ -100,8 +95,8 @@ outdated_local_files |> summarise_files()
 # Remove the local files that are out of date
 if (length(unlist(outdated_local_files)) > 0) {
   outdated_local_files |> unlist() |> file.remove()
-  local_files <- local_path |>
-    get_local_aqcsv_file_paths(local_dirs = local_dirs)
+  local_files <- local_path |> get_local_paths(local_dirs = local_dirs)
+  local_file_dates <- local_files |> lapply(get_aqcsv_dates)
 }
 
 # Download External Files Not Found Locally -------------------------------

@@ -1,14 +1,14 @@
-get_local_aqcsv_file_paths <- function(local_path, local_dirs) {
-  # Get names of local files
-  local_files <- local_dirs |>
-    lapply(\(local_dir) file.path(local_path, local_dir)) |>
-    lapply(list.files)
-
-  # Loop through lists of files, preppending the server path and dir to each file
-  names(local_files) |>
-    lapply(\(file_set) {
-      local_path |>
-        file.path(local_dirs[[file_set]], local_files[[file_set]]) |>
-        setNames(local_files[[file_set]])
+#' Get all local AQCSV files in the specified directories
+#'
+#' @param local_path Character string of the local directory to search for files
+#' @param local_dirs Named character vector of directory names within `local_path` that store each set of AQCSVs
+#' @return List of character vectors of file paths of all local AQCSV files
+#' @export
+get_local_paths <- function(local_path, local_dirs) {
+  local_dirs |>
+    lapply(\(local_dir) {
+      local_path |> 
+        file.path(local_dir) |>
+        list.files(recursive = TRUE, full.names = TRUE)
     })
 }

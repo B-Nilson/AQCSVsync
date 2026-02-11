@@ -3,4 +3,5 @@
 export(download_missing_files)
 export(get_aqcsv_dates)
 export(get_local_duplicates)
+export(get_local_paths)
 export(get_outdated_files)
