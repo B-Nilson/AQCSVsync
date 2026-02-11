@@ -3,7 +3,7 @@ Title: Keeps AQCSV Data Files on AQmap in-sync with ECCC Science Network
 Version: 0.0.0.9000
 Authors@R: 
     person("Brayden", "Nilson", , "brayden.nilson@ec.gc.ca", role = c("aut", "cre"))
-Description: Enables syncing of the AQCSV files produced on the AQmap server with the ECCC Science Network for supporting internal tool development. When installed on Sci. Net., allows for pulling the files from AQmap (including replacing old files with updated versions)
+Description: Enables syncing of the AQCSV files produced on the AQmap server with the ECCC Science Network for supporting internal tool development. When installed on Sci. Net., allows for pulling the files from AQmap (including replacing old files with updated versions).
 Depends: R (>= 4.1.0)
 License: MIT + file LICENSE
 Encoding: UTF-8
