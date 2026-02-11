@@ -33,8 +33,7 @@ logs <- handyr::log_step("Starting AQCSV Sync", header = TRUE)
 
 ## --- Local details ---
 # Where are the AQCSV files stored locally?
-# local_path <- "/fs/homeu2/eccc/oth/airq_west/jna001/Data/PurpleAir"
-local_path <- "."
+local_path <- "./data"
 # What are the directory names within `local_path` that store the AQCSVs?
 local_dirs <- list(
   RAW = "RAW",
