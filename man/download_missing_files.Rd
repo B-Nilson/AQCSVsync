@@ -9,7 +9,7 @@ download_missing_files(files_to_get, local_dir = "./COR")
 \arguments{
 \item{files_to_get}{Character vector of file paths to download}
 
-\item{local_path}{Character string of local directory to store files}
+\item{local_dir}{Character string of local directory to store files}
 }
 \value{
 invisible NULL

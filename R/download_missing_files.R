@@ -1,7 +1,7 @@
 #' Download missing files from AQCSV server
 #'
 #' @param files_to_get Character vector of file paths to download
-#' @param local_path Character string of local directory to store files
+#' @param local_dir Character string of local directory to store files
 #' @return invisible NULL
 #' @export
 #' @examples

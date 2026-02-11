@@ -110,10 +110,7 @@ seq_along(files_to_get) |>
     file.path(local_path, local_dirs[[i]]) |>
       dir.create(showWarnings = FALSE, recursive = TRUE)
     files_to_get[[i]] |>
-      download_missing_files(
-        local_path = local_path,
-        local_dir = local_dirs[[i]]
-      )
+      download_missing_files(local_dir = file.path(local_path, local_dirs[[i]]))
   })
 
 logs$complete <- handyr::log_step("AQCSV Sync Complete.")
