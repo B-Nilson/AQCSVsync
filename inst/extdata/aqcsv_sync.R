@@ -51,7 +51,7 @@ server_files <- get_external_file_paths()
 
 # Get file creation dates in case of updates
 server_file_dates <- server_files |>
-  lapply(get_aqcsv_creation_date)
+  lapply(get_aqcsv_dates)
 
 # Get Local (SciNet) File Details -----------------------------------------
 
@@ -63,15 +63,15 @@ local_files <- local_path |>
 
 # Get file creation dates in case of updates
 local_file_dates <- local_files |>
-  lapply(get_aqcsv_creation_date)
+  lapply(get_aqcsv_dates)
 
 # Remove Duplicated Local Files -------------------------------------------
 
 logs$duplicated_files <- handyr::log_step("Removing duplicated local files")
 
 # Get lists of files in each set that have newer versions already locally
-duplicated_local_files <- local_files |>
-  get_local_duplicates(local_file_dates = local_file_dates)
+duplicated_local_files <- local_file_dates |>
+  lapply(get_local_duplicates)
 
 # Output messaging with information on duplicated files
 duplicated_local_files |> summarise_files()
@@ -88,13 +88,10 @@ if (length(unlist(duplicated_local_files)) > 0) {
 logs$outdated_files <- handyr::log_step("Removing outdated local files")
 
 # Get local file paths that are out of date
-outdated_local_files <- seq_along(local_files) |>
+outdated_local_files <- seq_along(local_file_dates) |>
   lapply(\(i) {
-    local_files[[i]] |>
-      get_outdated_files(
-        server_file_dates = server_file_dates[[i]],
-        local_file_dates = local_file_dates[[i]]
-      )
+    server_file_dates[[i]] |>
+      get_outdated_files(local_file_dates = local_file_dates[[i]])
   })
 
 # Output messaging with information on outdated files
