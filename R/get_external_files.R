@@ -1,5 +1,13 @@
-get_external_file_paths <- function(
-  server_path = "https://aqmap.ca/aqmap/data/AQCSV",
+#' Get file paths for AQCSV files on the AQmap server
+#'
+#' @param base_url Base URL for server files
+#' @param server_dirs Directory names for server files
+#' @param server_file_lists File names for server file lists
+#'
+#' @return List of character vectors of server file paths for each of `server_dirs`
+#' @export
+get_server_paths <- function(
+  base_url = "https://aqmap.ca/aqmap/data/AQCSV",
   server_dirs = c(RAW = "raw", COR = "cor", FEM = "fem"),
   server_file_lists = c(
     RAW = "file_list_raw.txt",
@@ -7,21 +15,8 @@ get_external_file_paths <- function(
     FEM = "file_list_fem.txt"
   )
 ) {
-  # Read in lists of AQCSV files available
-  server_files <- server_file_lists |>
-    # Loop through each file list, preppending the server path
-    lapply(\(file_list) file.path(server_path, file_list)) |>
-    # Loop through these, reading each in
-    lapply(\(url) read.table(url)[, 1])
-
-  names(server_files) |>
-    # Loop through lists of files, preppending the server path and dir to each file
-    lapply(\(file_set) {
-      file.path(
-        server_path,
-        server_dirs[[file_set]],
-        server_files[[file_set]]
-      ) |>
-        setNames(server_files[[file_set]])
-    })
+  server_files <- file.path(base_url, server_file_lists) |>
+    lapply(\(url) data.table::fread(url, showProgress = FALSE)[, 1])
+  seq_along(server_files) |>
+    lapply(\(i) base_url |> file.path(server_dirs[[i]], server_files[[i]]))
 }

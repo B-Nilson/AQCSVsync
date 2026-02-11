@@ -46,12 +46,8 @@ local_dirs <- list(
 
 logs$external_files <- handyr::log_step("Getting external file details")
 
-# Read in lists of AQCSV files available
-server_files <- get_external_file_paths()
-
-# Get file creation dates in case of updates
-server_file_dates <- server_files |>
-  lapply(get_aqcsv_dates)
+server_files <- get_server_paths()
+server_file_dates <- server_files |> lapply(get_aqcsv_dates)
 
 # Get Local (SciNet) File Details -----------------------------------------
 
