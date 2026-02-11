@@ -1,7 +1,14 @@
+#' Output information on provided files for logging
+#'
+#' @param file_paths Character vector (or list of character vectors) of file paths to summarise
+#' @return invisible NULL
+#' @export
+#' @examples
+#' file_paths <- c("file1.csv", "file2.csv")
+#' summarise_files(file_paths)
 summarise_files <- function(file_paths) {
   # Get count of files
-  n_files <- file_paths |>
-    unlist() |>
+  n_files <-  unlist(file_paths) |>
     length()
 
   # Output messaging with information on outdated files
@@ -13,4 +20,5 @@ summarise_files <- function(file_paths) {
       time = FALSE
     )
   }
+  invisible()
 }
