@@ -60,15 +60,11 @@ local_file_dates <- local_files |> lapply(get_aqcsv_dates)
 
 logs$duplicated_files <- handyr::log_step("Removing duplicated local files")
 
-# Get lists of files in each set that have newer versions already locally
-duplicated_local_files <- local_file_dates |>
-  lapply(get_local_duplicates)
-
-# Output messaging with information on duplicated files
+duplicated_local_files <- local_file_dates |> lapply(get_local_duplicates)
 duplicated_local_files |> summarise_files()
 
-# Remove the local files that are duplicated
-if (length(unlist(duplicated_local_files)) > 0) {
+any_duplicated <- length(unlist(duplicated_local_files)) > 0
+if (any_duplicated) {
   duplicated_local_files |> unlist() |> file.remove()
   local_files <- local_path |> get_local_paths(local_dirs = local_dirs)
   local_file_dates <- local_files |> lapply(get_aqcsv_dates)
