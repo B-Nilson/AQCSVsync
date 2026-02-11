@@ -127,6 +127,8 @@ files_to_get |> summarise_files()
 # Download missing files
 seq_along(files_to_get) |>
   lapply(function(i) {
+    file.path(local_path, local_dirs[[i]]) |>
+      dir.create(showWarnings = FALSE, recursive = TRUE)
     files_to_get[[i]] |>
       download_missing_files(
         local_path = local_path,
