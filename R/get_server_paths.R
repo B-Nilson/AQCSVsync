@@ -15,8 +15,17 @@ get_server_paths <- function(
     FEM = "file_list_fem.txt"
   )
 ) {
+  original <- options()$timeout
+  options(timeout = 1000000)
   server_files <- file.path(base_url, server_file_lists) |>
-    lapply(\(url) data.table::fread(url, showProgress = FALSE)[, 1])
+    lapply(\(url) {
+      data.table::fread(url, showProgress = FALSE)[, 1] |>
+        handyr::on_error(
+          .return = NULL,
+          .warning = paste0("Failed to load: ", url)
+        )
+    })
+  options(timeout = original)
   seq_along(server_files) |>
     lapply(\(i) base_url |> file.path(server_dirs[[i]], server_files[[i]]))
 }
